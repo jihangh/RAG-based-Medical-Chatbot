@@ -1,0 +1,25 @@
+knowledge_base:
+  url: "https://staibabussalamsula.ac.id/wp-content/uploads/2024/06/The-Gale-Encyclopedia-of-Medicine-3rd-Edition-staibabussalamsula.ac_.id_.pdf"
+  pdfname: "The-Gale-Encyclopedia-of-Medicine-3rd-Edition-staibabussalamsula.ac_.id_.pdf"
+  chunk_size: 850
+  chunk_overlap: 100
+
+pinecone:
+  index_name:  "hybrid-index"
+  name_space:   "hybrid-namespace"
+
+openai:
+  model: "gpt-5-nano"
+  temperature: 0.2
+
+retriever:
+  dim: 1024  # 1024 for text-embedding-3-large
+  top_ret_doc: 3
+  alpha: 0.25 # weight for sparse vector similarity (scale between 0 and 1)
+  dense_model: "text-embedding-3-large"
+
+vector_store:
+  #batch size for upsert
+  batch_size: 32
+  #sleep time between upsert batches
+  sleep_time: 2
