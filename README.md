@@ -120,8 +120,8 @@ You can interact with the chatbot via the **Gradio interface** for real-time med
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/medical-qa-chatbot.git
-cd Medical-Chatbot
+git clone https://github.com/jihangh/RAG-based-Medical-Chatbot.git
+cd RAG-based-Medical-Chatbot
 ```
 
 ---
