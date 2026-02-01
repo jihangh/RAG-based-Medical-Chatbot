@@ -126,11 +126,14 @@ cd RAG-based-Medical-Chatbot
 
 ---
 
-### 2️⃣ Create Virtual Environment
+### 2️⃣ Create and Activate Virtual Environment
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate.bat
+# active venv on mac:
+source venv/bin/activate  
+# activate venv on windows: 
+venv\Scripts\activate.bat
 ```
 
 ---
