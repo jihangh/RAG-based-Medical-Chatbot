@@ -43,8 +43,6 @@ def ensure_embeddings(create_embeddings_fn, fingerprint: str, config: RAGConfig)
     # Fingerprint changed
     if state["fingerprint"] != fingerprint:
     
-
-
         logger.info("Fingerprint changed. Rebuilding embeddings...")
 
         create_embeddings_fn()
@@ -64,7 +62,7 @@ def ensure_embeddings(create_embeddings_fn, fingerprint: str, config: RAGConfig)
         save_state(state)
         return
 
-    # Drift detection (optional but pro)
+    # Drift detection 
     if pinecone_count != state.get("vector_count"):
         logger.info("Vector count drift detected. Updating state.")
         state["vector_count"] = pinecone_count

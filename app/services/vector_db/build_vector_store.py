@@ -2,8 +2,6 @@ from app.services.vector_db.vector_store import VectorStoreService
 from app.services.data_ingestion.data_loader import load_pdf
 from app.services.data_ingestion.data_processor import medical_filter_docs
 from app.services.data_ingestion.data_chunker import chunk_documents
-from app.utils.fingerprint import  compute_doc_hash
-from app.utils.chunks_cache import save_chunks, load_chunks
 from app.utils.loggers import get_logger
 from app.utils.exceptions import BuildKnowledgeBaseError
 from app.config.config import RAGConfig
@@ -20,17 +18,9 @@ def build_medical_vector_store(config: RAGConfig):
         #filter and preprocess documents
         processed_docs= medical_filter_docs(pdf_docs)
 
-        # Compute doc hash
-        doc_hash = compute_doc_hash(processed_docs)
-
-        # Try to load cached chunks
-        chunks = load_chunks(doc_hash)
-
-        
-        if chunks is None:
-            # Only chunk if needed
-            chunks = chunk_documents(processed_docs, config.chunk_size, config.chunk_overlap)
-            save_chunks(chunks, doc_hash)
+        #chunk document
+        chunks = chunk_documents(processed_docs, config.chunk_size, config.chunk_overlap)
+           
         logger.info(chunks[0:3])
         #initialize VectorStoreService
         vector_store_service = VectorStoreService(

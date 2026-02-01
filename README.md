@@ -34,11 +34,10 @@ This project demonstrates how to combine modern LLMs with vector databases and h
 * **🧠 Caching & Reprocessing Avoidance**  
 Prevents unnecessary re-ingestion using:
 
-- **Chunk Cache**: reuse previously processed document chunks.
 - **Pipeline Fingerprinting**: a SHA-256 hash over ingestion configuration (embedding model, dimensions, chunking params, index, namespace, etc.) to detect any data ingestion configuration changes.
 - **`rag_state.yaml`**: This file is generated after running the app for the first time. It persists fingerprint and vector count to determine whether document embeddings have been generated before or not.
 
-Before embedding generation, the system compares the current pipeline fingerprint and vectors count in the vector store against the saved state. If nothing has changed, vector generation and upserts are skipped.
+Before embedding generation, the system compares the current pipeline fingerprint and vectors count in the vector store against the saved state. If the configuration has not changed, vector generation and upserts are skipped. If the ingestion configuration was modified or if no vectors exist in the vector store, then the pdf document will be processed and embeddings will be generated and upserted into the vector store.
 
 * **🔗 API-Driven RAG Pipeline**
 Modular FastAPI endpoints for ingestion and chat:
