@@ -1,7 +1,6 @@
 from app.services.embedding_generation.ensure_embed import ensure_embeddings
 from app.services.vector_db.build_vector_store import build_medical_vector_store
-from app.utils.fingerprint import compute_fingerprint, compute_doc_hash
-from app.utils.chunks_cache import save_chunks, load_chunks
+from app.utils.fingerprint import compute_fingerprint
 from app.config.config import RAGConfig
 from app.utils.loggers import get_logger
 from app.utils.exceptions import BuildKnowledgeBaseError

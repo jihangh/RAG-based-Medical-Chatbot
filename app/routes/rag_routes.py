@@ -1,10 +1,12 @@
 from app.utils.loggers import get_logger
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.schemas.rag_schema import ChatRequest, ChatResponse
 from app.services.vector_db.ensure_vector import create_vectors
-from app.services.ragchain.rag_chain import rag_assistant, build_prompt_with_context
+from app.services.rag_chain import rag_assistant, build_prompt_with_context, save_chat
 from app.utils.exceptions import AppBaseException
 from app.config.config import RAGConfig
+from sqlalchemy.orm import Session
+from app.dependencies import get_db
 import sys
 import uuid
 
@@ -22,7 +24,7 @@ logger = get_logger(__name__)
 
 router = APIRouter(prefix="/rag", tags=["rag"])
 
-#optional: you can create a seperate api for embedding vectors
+#a seperate api for embedding vectors
 
 @router.post("/vectorstore")
 async def ingest_docs():
@@ -40,17 +42,21 @@ async def ingest_docs():
 
 
 @router.post("/chat", response_model= ChatResponse)
-async def chat(req: ChatRequest):
+async def chat(req: ChatRequest, db: Session=  Depends(get_db)):
     try:
         #Embed vectors in vectordb(if not already embedded)
-        create_vectors(sys_config)
-        #chat with rag agent
+        create_vectors(sys_config)  
+        #add user message
+        save_chat(sessionid= session_id, msg= req.message, role= "User", db=db)
+       #chat with rag agent
         answer = rag_assistant(
             req.message,
             [build_prompt_with_context(sys_config)],
             model=sys_config.get_llm(),
             session_id=session_id
         )
+        #add AI answer
+        save_chat(sessionid= session_id, msg= answer, role= "AI Assistant", db=db)
         return {"answer": answer, "memory_thread_id": session_id}
 
     except AppBaseException as abe:

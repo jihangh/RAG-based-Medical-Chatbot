@@ -46,7 +46,6 @@ def chat_with_rag(message: str, history= None) -> str:
         return f"Unexpected error: {str(e)}"
     
 
-
 #gradio chat interface
 
 demo = gr.ChatInterface(
