@@ -66,6 +66,7 @@ pinecone-plugin-assistant==3.0.1
 pinecone-plugin-interface==0.0.7
 propcache==0.4.1
 protobuf==6.33.4
+psycopg2==2.9.11
 pydantic==2.12.5
 pydantic-settings==2.12.0
 pydantic_core==2.41.5
