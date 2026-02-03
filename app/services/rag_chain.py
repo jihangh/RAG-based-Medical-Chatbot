@@ -10,10 +10,7 @@ from pathlib import Path
 from langgraph.checkpoint.memory import InMemorySaver 
 from sqlalchemy.orm import Session
 from app.models.chathistory_model import ChatHistoryModel
-
-
-
-from app.utils.exceptions import BuildContextPromptError, RagChainError, AppBaseException
+from app.utils.exceptions import BuildContextPromptError, RagChainError,DatabaseError, AppBaseException
 
 from app.utils.loggers import get_logger
 
@@ -87,7 +84,7 @@ def rag_assistant(query, build_prompt_with_contex, model,session_id):
         answer = "".join(final_answer[-1]).strip()
     except AppBaseException as dce:
         logger.error(f"Domain error while running RAG assistant: {dce}")
-        raise dce
+        raise RagChainError
 
     except Exception as e:
         logger.error("Unexpected error while running RAG assistant")
@@ -98,7 +95,16 @@ def rag_assistant(query, build_prompt_with_contex, model,session_id):
 
 #store chat in db
 def save_chat(sessionid: id, msg: str, role: str, db: Session):
-    db_chat= ChatHistoryModel(session_id= sessionid, role= role, content= msg)
-    db.add(db_chat)
-    db.commit()
-    db.refresh(db_chat)
+    try: 
+        db_chat= ChatHistoryModel(session_id= sessionid, role= role, content= msg)
+        db.add(db_chat)
+        db.commit()
+        db.refresh(db_chat)
+
+    except AppBaseException as dbe:
+        logger.error(f"Error while saving chat history in database: {dbe}")
+        raise DatabaseError
+
+    except Exception as e:
+        logger.error("Unexpected error while saving chat history in database.")
+        raise Exception("Unexpected error while saving chat history in database.") from e

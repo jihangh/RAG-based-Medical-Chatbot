@@ -2,7 +2,7 @@ from pathlib import Path
 from functools import lru_cache
 from app.utils.exceptions import PromptFileNotFoundError
 
-# @lru_cache to cache the loaded prompt
+# load the system prompt
 def load_system_prompt(path: str = "app/resources/prompts/system_prompt.txt") -> str:
     prompt_path = Path(path)
 

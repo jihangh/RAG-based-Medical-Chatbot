@@ -4,9 +4,11 @@ from app.config.config import RAGConfig
 
 logger= get_logger(__name__)
 
-''' check if vectors exist in vector store'''
+
 
 def get_vector_count(config: RAGConfig) -> int:
+
+    ''' check if vectors exist in vector store'''
     try:
         index = config.pinecone_vector_client.Index(config.index_name)
         stats = index.describe_index_stats()
@@ -21,11 +23,14 @@ def vectorstore_exists(config: RAGConfig) -> bool:
 
 
 
-''' check if no embeddings were created or 
-    if  fingerprint changed then generate embeddings,
-    else use existing embeddings '''
+
 
 def ensure_embeddings(create_embeddings_fn, fingerprint: str, config: RAGConfig):
+    
+    ''' check if no embeddings were created or 
+        if  fingerprint changed then generate embeddings,
+        else use existing embeddings '''
+    
     state = load_state() 
     pinecone_count = get_vector_count(config)
 

@@ -14,7 +14,7 @@ openai:
 
 retriever:
   dim: 1024  # 1024 for text-embedding-3-large
-  top_ret_doc: 3
+  top_ret_doc: 5 # number of top retrieved docs
   alpha: 0.25 # weight for sparse vector similarity (scale between 0 and 1)
   dense_model: "text-embedding-3-large"
 

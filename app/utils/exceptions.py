@@ -87,3 +87,6 @@ class RagChainError(AppBaseException):
     def __init__(self, message="Error occurred in RAG chain execution."):
         super().__init__(message)
 
+class DatabaseError(AppBaseException):
+    def __init__(self, message= "Error occurred in saving chats to the database."):
+        super().__init__(message)

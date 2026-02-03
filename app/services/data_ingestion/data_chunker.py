@@ -22,8 +22,7 @@ def chunk_documents(docs, chunk_size: int, chunk_overlap: int) -> List[Document]
         text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,         # Ideal for clinical explanations
         chunk_overlap=chunk_overlap,      # Preserves continuity
-        separators=["\n\n",             # Section boundaries (strongest)
-                    "\n\n",             # Section boundaries (strongest)
+        separators=["\n\n",             # Section boundaries 
                     "\n",               # Paragraph boundaries
                     ".",                # Sentence boundary
                     ";",
