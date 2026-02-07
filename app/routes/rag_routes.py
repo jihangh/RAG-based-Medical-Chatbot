@@ -1,6 +1,7 @@
 from app.utils.loggers import get_logger
 from fastapi import APIRouter, HTTPException, Depends
-from app.schemas.rag_schema import ChatRequest, ChatResponse
+from app.schemas.rag_schema import ChatRequest, ChatResponse, ChatHistorySchema
+from app.models.chathistory_model import ChatHistoryModel
 from app.services.vector_db.ensure_vector import create_vectors
 from app.services.rag_chain import rag_assistant, build_prompt_with_context, save_chat
 from app.utils.exceptions import AppBaseException
@@ -67,3 +68,7 @@ async def chat(req: ChatRequest, db: Session=  Depends(get_db)):
         logger.exception("Unexpected error in chat")
         raise HTTPException(status_code=500, detail="Internal error")
 
+@router.get('/chathistory', response_model= list[ChatHistorySchema])
+async def get_chathistory(db: Session= Depends(get_db)):
+    all_chats= db.query(ChatHistoryModel).all()
+    return all_chats
