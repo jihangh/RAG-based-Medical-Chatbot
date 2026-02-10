@@ -32,9 +32,9 @@ This project demonstrates how to combine modern LLMs with vector database and hy
   Stores and retrieves medical documents efficiently at scale.
 
 * **🧠 Caching & Reprocessing Avoidance**  
-  Avoids recomputing embeddings unless something meaningful changes.
+  Avoids recomputing embeddings unless embedding related configuration changes were made.
   * **Pipeline Fingerprinting**: SHA-256 hash over ingestion configuration.  
-  * **`rag_state.yaml`**: persists fingerprint and vector count.
+  * **`rag_state.yaml`**: generated after the first run. It persists fingerprint and vector count to detect any future configuration changes.
 
 * **🔗 API-Driven RAG Pipeline**  
   * **/rag/vectorstore**: generate and upsert embeddings  
