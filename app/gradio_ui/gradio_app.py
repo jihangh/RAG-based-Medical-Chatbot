@@ -1,10 +1,10 @@
 import requests
 from typing import List, Tuple
 import gradio as gr
+import os
 
-
-# API base URL - adjust based on your setup
-API_BASE_URL = "http://localhost:8000"
+# Get API_BASE_URL from environment, fallback to localhost for local dev
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8888")
 
 
 def chat_with_rag(message: str, history= None) -> str:
@@ -51,4 +51,5 @@ def chat_with_rag(message: str, history= None) -> str:
 demo = gr.ChatInterface(
     fn=chat_with_rag,  
     title="Medical Chatbot with RAG",
-    description="Ask your medical questions")
+    description="Ask your medical questions",
+    type= "messages" )

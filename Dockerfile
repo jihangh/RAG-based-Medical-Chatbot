@@ -1,27 +1,31 @@
 FROM python:3.12-slim
 
-#set working directory
+# Set environment variables early
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
 WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && \
-	apt-get install -y build-essential libpq-dev && \
-	rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends build-essential libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-#copy requirements
+# Copy only requirements first (cache layer)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-#copy project files
+# Install python deps with cache mount (BuildKit)
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt\
+	--extra-index-url https://download.pytorch.org/whl/cpu
+# Copy project files last
 COPY . .
 
-#expose port for Fastapi
-EXPOSE 8000
+EXPOSE 8888
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8888"]
 
-# Start FastAPI app with Uvicorn since we Fastapi
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 

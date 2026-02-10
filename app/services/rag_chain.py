@@ -93,6 +93,7 @@ def rag_assistant(query, build_prompt_with_contex, model,session_id):
     logger.info("RAG assistant generated an answer successfully.")
     return answer or "I'm sorry, I couldn't find an answer to your question."
 
+
 #store chat in db
 def save_chat(sessionid: id, msg: str, role: str, db: Session):
     try: 
