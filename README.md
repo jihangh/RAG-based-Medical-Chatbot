@@ -16,45 +16,41 @@ This project demonstrates how to combine modern LLMs with vector databases and h
 
 ## ✨ Key Features
 
-* **🚀 Fast & Cost-Effective LLM**
-  Powered by **OpenAI GPT-5 nano** for concise, efficient responses.git init
+* **🚀 Fast & Cost-Effective LLM**  
+  Powered by **OpenAI GPT-5 nano** for concise, efficient responses.
 
-* **🧠 Hybrid Retrieval (Dense + Sparse)**
+* **🧠 Hybrid Retrieval (Dense + Sparse)**  
   Combines semantic embeddings with keyword-based search for higher accuracy using a tunable `alpha` score.
 
-* **📚 Trusted Medical Knowledge Base**
+* **📚 Trusted Medical Knowledge Base**  
   Built from *The Gale Encyclopedia of Medicine*.
 
-* **🧩 Domain-Specific Chunking**
+* **🧩 Domain-Specific Chunking**  
   Uses LangChain’s `RecursiveCharacterTextSplitter` with medical-aware chunking strategy.
 
-* **🔍 Vector Search with Pinecone**
+* **🔍 Vector Search with Pinecone**  
   Stores and retrieves medical documents efficiently at scale.
 
 * **🧠 Caching & Reprocessing Avoidance**  
-Prevents unnecessary re-ingestion using:
+  Avoids recomputing embeddings unless something meaningful changes.
+  * **Pipeline Fingerprinting**: SHA-256 hash over ingestion configuration.  
+  * **`rag_state.yaml`**: persists fingerprint and vector count.
 
-  - **Pipeline Fingerprinting**: a SHA-256 hash over ingestion configuration (embedding model, dimensions, chunking params, index, namespace, etc.) to detect any data ingestion configuration changes.
-  - **`rag_state.yaml`**: This file is generated after running the app for the first time. It persists fingerprint and vector count to determine whether document embeddings have been generated before or not.
+* **🔗 API-Driven RAG Pipeline**  
+  * **/rag/vectorstore**: generate and upsert embeddings  
+  * **/rag/chat**: run the full RAG workflow  
+  * **/rag/chathistory**: view persisted chat history
 
-  Before embedding generation, the system compares the current pipeline fingerprint and vectors count in the vector store against the saved state. If the configuration has not changed and vectors exist in the vector store, vector generation and upserts are skipped. If the ingestion configuration was modified or if no vectors exist in the vector store, then the pdf document will be processed and embeddings will be generated and upserted into the vector store.
-
-* **🔗 API-Driven RAG Pipeline**
-Modular FastAPI endpoints for ingestion and chat:
-
-- **/rag/vectorstore**: generate and upsert embeddings
-
-- **/rag/chat**: run the full RAG workflow
-
-* **🖥️ Interactive UI**
+* **🖥️ Interactive UI**  
   Simple and clean **Gradio** interface for real-time medical Q&A.
 
-* **🔗 LangChain Orchestration**
+* **🔗 LangChain Orchestration**  
   Seamlessly integrates LLMs, retrievers, embeddings, and short-term memory.
 
-* **🗂️ Session-Based Conversational Memory**
-  Maintains conversation context per user session using `langgraph.checkpoint.memory.InMemorySaver`, with the Gradio `session_id` passed as the LangGraph `thread_id` to ensure stable, multi-turn interactions.
-
+* **🗂️ Session-Based Conversational Memory (Persistent)**  
+  Maintains conversation context per user session and **persists chat history in PostgreSQL**.  
+  The Gradio `session_id` is passed as the LangGraph `thread_id`, allowing conversations to survive requests and container restarts.  
+  Stored conversations can be retrieved via **/rag/chathistory**.
 
 ---
 
@@ -84,32 +80,30 @@ Answer to User
 
 ## 🔧 Tech Stack
 
-* **LLM:** OpenAI GPT-5 nano
-* **Framework:** LangChain
-* **Vector DB:** Pinecone
-* **Embeddings:**
-
-  * `text-embedding-3-large` (dense)
-  * `pinecone-sparse-english-v0` (sparse)
-* **API Layer:** FastAPI
-* **Interface:** Gradio
+* **LLM:** OpenAI GPT-5 nano  
+* **Framework:** LangChain  
+* **Vector DB:** Pinecone  
+* **Embeddings:**  
+  * `text-embedding-3-large` (dense)  
+  * `pinecone-sparse-english-v0` (sparse)  
+* **API Layer:** FastAPI  
+* **Interface:** Gradio  
+* **Database:** PostgreSQL (via Docker)  
 * **Language:** Python
 
 ---
 
 ## 🎮 Demo
 
-You can interact with the chatbot via the **Gradio interface** for real-time medical Q&A.
-
-![Medical Chatbot Demo](assets/demo_screenshot0.PNG)
+![Medical Chatbot Demo](assets/demo_screenshot0.PNG)  
 <small>Screenshot: Multi-turn conversation showing context-aware answers</small>
 
 ---
 
 ## ✅ Prerequisites
 
-* Python **3.10+** (tested on **3.12.9**)
-* OpenAI API key
+* Docker Desktop installed and running  
+* OpenAI API key  
 * Pinecone API key
 
 ---
@@ -125,38 +119,25 @@ cd RAG-based-Medical-Chatbot
 
 ---
 
-### 2️⃣ Create and Activate Virtual Environment
-
-```bash
-python -m venv venv
-# active venv on mac:
-source venv/bin/activate  
-# activate venv on windows: 
-venv\Scripts\activate.bat
-```
-
----
-
-### 3️⃣ Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-### 4️⃣ Set Up Environment Variables
-
-Create a `.env` file in the project root:
+### 2️⃣ Create `.env` file in project root
 
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
 PINECONE_API_KEY=your_pinecone_api_key_here
+POSTGRES_USER=yourrolename
+POSTGRES_PASSWORD=yourdbpassword
+POSTGRES_DB=yournameofdb
+DATABASE_URL="postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@localhost/{POSTGRES_DB}"
 ```
+
+> PostgreSQL is provided automatically via Docker Compose.  
+> You do **NOT** need to install PostgreSQL locally when using Docker.  
+> The database hostname is internally configured as `db`.  
+> `DATABASE_URL` is added in case you want to run the project locally, not on Docker.
 
 ---
 
-### 5️⃣ Configure the System
+### 3️⃣ Configure the System
 
 Edit `config.yaml`:
 
@@ -169,9 +150,9 @@ Feel free to adjust other parameters such as chunk size, retriever alpha, and mo
 
 ---
 
-### 6️⃣ Customize the System Prompt
+### 4️⃣ Customize the System Prompt
 
-You can modify the behavior of the assistant in:
+Edit:
 
 ```
 system_prompt.txt
@@ -183,17 +164,76 @@ This controls tone, safety, and answer formatting.
 
 ## 💻 Usage
 
-Start the chatbot:
+```bash
+docker compose up --build
+```
+
+APIs: [http://localhost:8888/docs](http://localhost:8888/docs)  
+UI: [http://localhost:8888/ui](http://localhost:8888/ui)
+
+---
+
+## 🐍 Optional: Run Without Docker
 
 ```bash
-uvicorn main:app
+python -m venv venv
+source venv/bin/activate  # macOS/Linux
+venv\Scripts\activate.bat # Windows
+
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8888
 ```
 
-The Gradio interface will be available at:
+> You must provide your own PostgreSQL instance and update the DB connection accordingly.
 
+---
+
+### PostgreSQL Setup (if running locally)
+
+✅ 1. Install PostgreSQL  
+🖥️ macOS  
+```bash
+brew install postgresql
+brew services start postgresql
 ```
-http://localhost:8000/ui
+
+🖥️ Ubuntu / Debian  
+```bash
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
 ```
+
+🖥️ Windows  
+Download from [postgresql.org](https://www.postgresql.org/download/windows/) and follow instructions.
+
+✅ 2. Access PostgreSQL  
+```bash
+psql postgres
+# or on macOS/Ubuntu
+sudo -u postgres psql
+```
+
+✅ 3. Create Role & Database
+
+```sql
+-- Create a new user
+CREATE ROLE userrole WITH LOGIN PASSWORD 'yourpassword';
+
+-- Allow the user to create databases (optional)
+ALTER ROLE userrole CREATEDB;
+
+-- Create the app database
+CREATE DATABASE nameofdb OWNER userrole;
+
+-- Grant privileges
+GRANT ALL PRIVILEGES ON DATABASE nameofdb TO userrole;
+
+-- Exit
+\q
+```
+
+Replace `userrole`, `yourpassword`, and `nameofdb` with your values.
 
 ---
 
@@ -201,31 +241,19 @@ http://localhost:8000/ui
 
 ### 🔧 Technical
 
-* Answers are limited to content in *The Gale Encyclopedia of Medicine*.
-* May not reflect the most recent clinical guidelines.
-* Performance depends on query clarity and retrieved context quality.
+* Answers limited to *The Gale Encyclopedia of Medicine*  
+* May not reflect the most recent clinical guidelines  
+* Performance depends on query clarity and context quality
 
 ### ⚖️ Ethical
 
-* Not suitable for emergency medical situations.
-* Should not be used for self-diagnosis or treatment decisions.
-* Possible biases from source material.
-* Human medical professional oversight is essential.
+* Not suitable for emergency situations  
+* Not for self-diagnosis or treatment decisions  
+* Possible source biases  
+* Human medical oversight is essential
+
 ---
 
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome. Feel free to fork the project and submit a PR.
-
----
-
-## ⭐ Acknowledgments
-
-* OpenAI
-* LangChain
-* Pinecone
-* The Gale Encyclopedia of Medicine
-
----
-
-Happy building! 🚀
